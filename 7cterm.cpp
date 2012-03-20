@@ -146,8 +146,6 @@ int main()
   //FIXME Find all non-school days by prompt?
   //FIXME Ask for start/end of semester
   
-  //FIXME does ical have a unique id for each component?
-  
   //Actually manupulating the calendar
   while (true)
   {
@@ -231,7 +229,7 @@ int main()
         
         cin >> user_choice;
         
-        if ((user_choice == "y") || (user_choice != "Y"))
+        if ((user_choice == "y") || (user_choice == "Y"))
         {
           return 0;
         }
