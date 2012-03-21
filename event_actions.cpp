@@ -508,7 +508,7 @@ void edit_event(icalcomponent* calendar)
 void view_event(icalcomponent* calendar)
 {
   //Ask user if they want null fields in addition to filled ones
-  bool show_null_fields_too = yes_no_prompt("Do you want to view empty fields? (y/n");
+  bool show_null_fields_too = yes_no_prompt("Do you want to view empty fields? (y/n)");
     
   icalcomponent* event = find_event(calendar);
   
