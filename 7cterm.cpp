@@ -91,14 +91,8 @@ int main()
       }
       
       //DELETE SINGLE EVENT
-      //FIXME Not implemented in this sprint
       case 3:
       {
-        cout << "This feature is not implemented in this sprint." << endl;
-        break;
-        
-        
-      
         delete_event(calendar);
         break;
       }

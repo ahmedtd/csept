@@ -1,7 +1,6 @@
 #include <cstring>
 
-//FIXME string[] all_props keeps popping up. maybe it should be a global?
-//FIXME array length is int size = sizeof( arr ) / sizeof( arr[0] );
+//FIXME CHECK FOR ICAL ERRORS
 //FIXME possible off-by-one on all_props
 
 void add_class(icalcomponent* calendar, vector<string>& classes)
@@ -12,10 +11,11 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
   classes.push_back(class_name);
   
   
-  //FIXME List each property field one at a time
+  //List each property field one at a time
   string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
   //FIXME Start/end dates rely on default start/end of semester if user okays default
+  
   vector<string> values;
   
   for (int i = 0; i < sizeof(all_props) / sizeof(all_props[0]); i++)
@@ -40,8 +40,8 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
     icalproperty_new_contact(values[5].c_str()),
     icalproperty_new_comment(values[4].c_str()),
     icalproperty_vanew_attach(
-      NULL, //FIXME is this the file encoding?
-      values[0].c_str(),
+      NULL, //FIXME icalattach *icalattach_new_from_url (const char *url);
+      values[0].c_str(),  //FIXME?
       0
       ),
     //FIXME icalproperty_new_duration(values[11].c_str()), //needs right type
@@ -273,7 +273,7 @@ icalcomponent* find_event(icalcomponent* calendar)
   
   string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
-  for (int i = 0; i < sel_props.size(); i++)
+  for (int i = 0; i < sel_props.size() && i < sizeof(all_props) / sizeof(all_props[0]); i++)
   {
     for (int j = 0; j < 31; j++)
     {
@@ -326,7 +326,7 @@ icalcomponent* find_event(icalcomponent* calendar)
         }
       }else
       {
-        //FIXME This could be horribly wrong
+        //FIXME Iterate through all properties
         icalproperty* p = icalcomponent_get_first_property(c,ICAL_ANY_PROPERTY);
         char* prop_value;
         strcpy(prop_value, icalproperty_get_comment(p));
@@ -339,46 +339,6 @@ icalcomponent* find_event(icalcomponent* calendar)
             break;
           }
         }
-        
-        /*switch (sel_props_pos[i])
-        {
-          case 0:
-          {
-            
-          }
-          case 1:
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-          case 6:
-          case 7:
-          case 8:
-          case 9:
-          case 10:
-          case 11:
-          case 12:
-          case 13:
-          case 14:
-          case 15:
-          case 16:
-          case 17:
-          case 18:
-          case 19:
-          case 20:
-          case 21:
-          case 22:
-          case 23:
-          case 24:
-          case 25:
-          case 26:
-          case 27:
-          case 28:
-          case 29:
-          case 30:
-          case 31:
-          default: throw property_fail_ex; break;
-        }*/
       }
     }
     
@@ -415,19 +375,42 @@ icalcomponent* find_event(icalcomponent* calendar)
 
 }
 
-//FIXME Not implemented in this sprint
 void delete_event(icalcomponent* calendar)
 {
   icalcomponent* event = find_event(calendar);
-  bool is_class_event = false; //FIXME 
    
   if (!yes_no_prompt("Are you sure you want to delete this event? (y/n"))
   {
     return;
   }
   
-  //FIXME find the event in the components
+  //Find the event in the components
+  icalcomponent* c = icalcomponent_get_first_component(calendar, ICAL_VEVENT_COMPONENT);
   
+  bool found_event = false;
+  
+  while((c=icalcomponent_get_current_component(c)) != 0 )
+  { 
+    if(icalcomponent_isa(c) == ICAL_VEVENT_COMPONENT)
+    {
+      if (c == event)
+      {
+        icalcomponent_remove_component(calendar, c);
+        found_event = true;
+      }
+    }else
+    { 
+      icalcomponent_get_next_component(calendar, ICAL_VEVENT_COMPONENT); 
+    }
+  }
+  
+  if (!found_event)
+  {
+    append_action_to_closed_log("Delete event", false);
+    return;
+  }
+  
+  append_action_to_closed_log("Delete event", true);
 }
 
 void edit_event(icalcomponent* calendar)
@@ -439,7 +422,7 @@ void edit_event(icalcomponent* calendar)
     append_action_to_closed_log("Edit event", false);
   }
   
-  //FIXME Once event found by property, display all fields and prompt for which to edit
+  //Once event found by property, display all fields and prompt for which to edit
   cout << "Which fields would you like to edit?" << endl;
   
   string properties;
@@ -537,7 +520,7 @@ void view_event(icalcomponent* calendar)
   {
     if ((icalproperty_get_comment(p) != NULL) || (show_null_fields_too))
     {
-      cout << icalproperty_get_x_name(p) << endl; //FIXME might work
+      cout << icalproperty_get_x_name(p) << ": ";
       cout << icalproperty_get_comment(p) << endl;
     }
   }
@@ -548,4 +531,5 @@ void view_event(icalcomponent* calendar)
 void delete_class(icalcomponent* calendar)
 {
   //FIXME Not implemented in this sprint
+  //FIXME Are we planning to remove ALL events associated with the class?
 }
