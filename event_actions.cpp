@@ -1,7 +1,6 @@
 #include <cstring>
 
 //FIXME CHECK FOR ICAL ERRORS
-//FIXME possible off-by-one on all_props
 
 void add_class(icalcomponent* calendar, vector<string>& classes)
 {
@@ -24,8 +23,12 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
     std::flush(cout);
     
     string value = "";
-    getline(cin, value); //FIXME Check for failbit
+    getline(cin, value);
     
+    if (cin.fail())
+    {
+      throw cin_fail_ex;
+    }
     //FIXME Take user input and validate 
     values.push_back(value);
     cout << endl;
@@ -491,7 +494,7 @@ void edit_event(icalcomponent* calendar)
         
         for( 	p = icalcomponent_get_first_property(event,ICAL_ANY_PROPERTY); 	p != 0; 	p = icalcomponent_get_next_property(event,ICAL_ANY_PROPERTY))
         {
-          //FIXME no support for mult-parameter properties yet
+          //FIXME no support for multi-parameter properties yet
           //FIXME also no value checking, which matters
           //FIXME use void icalproperty_set_value(icalproperty* prop, icalvalue* value);
         }

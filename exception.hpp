@@ -21,3 +21,13 @@ class property_fail_exception: public exception
       return "Failure writing to the log file";
     }
 } property_fail_ex;
+
+//Thrown when cin fails
+class cin_fail_exception: public exception
+{
+  public:
+    virtual const char* what() const throw()
+    {
+      return "Failed to read from standard input";
+    }
+} cin_fail_ex;
