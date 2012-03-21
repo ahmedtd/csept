@@ -2,7 +2,7 @@
 #ifndef CALMEMO
 #define CALMEMO
 
-class calmemo
+class calmemo : public calitem
 {
     
 };
