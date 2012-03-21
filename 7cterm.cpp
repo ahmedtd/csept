@@ -1,152 +1,43 @@
 #include <ctime>
+#include <vector>
 #include <libical/ical.h>
 #include <cstdlib>
 
 #include "ical_x_defs.hpp"  //Contains libical macros, property types
+#include "text_utilities.cpp" //Contains general text utilities
 #include "exception.hpp"
 #include "log.cpp"
-
-
-/*
-//Now, create the same component as in the previous routine, but use
-the constructor style.
-
-icalcomponent* create_new_component_with_va_args()
-{
-    icalcomponent* calendar;
-    struct icaltimetype atime = icaltime_from_timet( time(0),0);
-    struct icalperiodtype rtime;
-    
-    rtime.start = icaltime_from_timet( time(0),0);
-    rtime.end = icaltime_from_timet( time(0),0);
-    rtime.end.hour++;
-
-    //Some of these routines are the same as those in the previous
-    //   routine, but we've also added several 'vanew' routines. These
-    //   'vanew' routines take a list of properties, parameters or
-    //   values and add each of them to the parent property or
-    //   component.
-
-    calendar = 
-	icalcomponent_vanew(
-	    ICAL_VCALENDAR_COMPONENT,
-	    icalproperty_new_version("2.0"),
-	    icalproperty_new_prodid("-//RDU Software//NONSGML HandCal//EN"),
-	    icalcomponent_vanew(
-		ICAL_VEVENT_COMPONENT,
-		icalproperty_new_dtstamp(atime),
-		icalproperty_new_uid("guid-1.host1.com"),
-		icalproperty_vanew_organizer(
-		    "mailto:mrbig@host.com",
-		    icalparameter_new_role(ICAL_ROLE_CHAIR),
-		    0
-		    ),
-		icalproperty_vanew_attendee(
-		    "mailto:employee-A@host.com",
-		    icalparameter_new_role(ICAL_ROLE_REQPARTICIPANT),
-		    icalparameter_new_rsvp(1),
-		    icalparameter_new_cutype(ICAL_CUTYPE_GROUP),
-		    0
-		    ),
-		icalproperty_new_description("Project XYZ Review Meeting"),
-
-		icalproperty_new_categories("MEETING"),
-		icalproperty_new_class(ICAL_CLASS_PUBLIC),
-		icalproperty_new_created(atime),
-		icalproperty_new_summary("XYZ Project Review"),
-		icalproperty_vanew_dtstart(
-		    atime,
-		    icalparameter_new_tzid("US-Eastern"),
-		    0
-		    ),
-		icalproperty_vanew_dtend(
-		    atime,
-		    icalparameter_new_tzid("US-Eastern"),
-		    0
-		    ),
-		icalproperty_new_location("1CP Conference Room 4350"),
-		0
-		),
-	    0
-	    );
-
-   
-    // Note that properties with no parameters can use the regular
-    //   'new' constructor, while those with parameters use the 'vanew'
-    //   constructor. And, be sure that the last argument in the 'vanew'
-    //   call is a zero. Without, your program will probably crash.
-
-    return calendar;
-}
-
-
-void find_sub_components(icalcomponent* comp)
-{
-    icalcomponent *c;
-    
-    // The second parameter to icalcomponent_get_first_component
-       indicates the type of component to search for. This will
-       iterate through all sub-components
-    for(c = icalcomponent_get_first_component(comp,ICAL_ANY_COMPONENT);
-	c != 0;
-	c = icalcomponent_get_next_component(comp,ICAL_ANY_COMPONENT)){
-
-	do_something(c);
-    }
-
-    // This will iterate only though VEVENT sub-components
-
-    for(c = icalcomponent_get_first_component(comp,ICAL_VEVENT_COMPONENT);
-	c != 0;
-	c = icalcomponent_get_next_component(comp,ICAL_VEVENT_COMPONENT)){
-
-	do_something(c);
-    }
-
-}
-
-// Ical components only have one internal iterator, so removing the
-//   object that the iterator points to can cause problems. Here is the
-//   right way to remove components
-
-void remove_vevent_sub_components(icalcomponent* comp){
-    
-    icalcomponent *c, *next;
-
-    for( c = icalcomponent_get_first_component(comp,ICAL_VEVENT_COMPONENT);
-	 c != 0;
-	 c = next)
-    {
-	next  = icalcomponent_get_next_component(comp,ICAL_VEVENT_COMPONENT);
-
-	icalcomponent_remove_component(comp,c);
-
-	do_something(c);
-    }
-
-}
-*/
+#include "event_actions.cpp"
 
 int main()
 {
+  vector<string> classes; //the first line of the ics7 file contains the elements of this
+  
+  icalproperty_set_x_name(ical_x_class_prop, "X-CLASS");
+
   icalcomponent* calendar = NULL;
+  struct icaltimetype atime;
+  struct icalperiodtype rtime;
+
   //FIXME Later versions will try to load from the default file here
   
   //If we don't have a saved calendar, make a new one
   if (calendar == NULL)
   {
-    struct icaltimetype atime = icaltime_from_timet( time(0),0);
-    struct icalperiodtype rtime;
-    
+    atime = icaltime_from_timet( time(0),0);
+
     rtime.start = icaltime_from_timet( time(0),0);
     rtime.end = icaltime_from_timet( time(0),0);
     rtime.end.hour++;
+    
+    calendar = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
   }
   
   //FIXME Find all non-school days by prompt?
+  
   //FIXME Ask for start/end of semester
   
-  //Actually manupulating the calendar
+  //Actually manipulating the calendar
   while (true)
   {
     //Prompt for user action
@@ -157,7 +48,8 @@ int main()
       "4. Edit an event\n" <<
       "5. Find an event\n" <<
       "6. View an event\n" << 
-      "7. Exit the program\n" << endl;
+      "7. Delete a class\n" <<
+      "8. Exit the program\n" << endl;
     cout << "Enter the integer corresponding to your choice" << endl;
     
     string user_choice = "";
@@ -184,52 +76,80 @@ int main()
     //Given the choice, perform the desired action
     switch (atoi(user_choice.c_str()))
     {
-    
+      //ADD CLASS
       case 1:
       {
-        //FIXME
+        add_class(calendar, classes);
         break;
       }
       
+      //ADD EVENT (for a class or in general)
       case 2:
       {
-        //FIXME
+        add_event(calendar);
         break;
       }
       
+      //DELETE SINGLE EVENT
+      //FIXME Not implemented in this sprint
       case 3:
       {
-        //FIXME
+        cout << "This feature is not implemented in this sprint." << endl;
+        break;
+        
+        
+      
+        delete_event(calendar);
         break;
       }
       
+      //EDIT EVENT (class or general)
       case 4:
       {
-        //FIXME
+        edit_event(calendar);
         break;
       }
       
+      //FIND EVENT
       case 5:
       {
-        //FIXME
+        icalcomponent* event = find_event(calendar);
+        if (event == NULL)
+        {
+          append_action_to_closed_log("Find event", false);
+        }else
+        {
+          append_action_to_closed_log("Find event", true);
+        }
         break;
       }
       
+      //VIEW EVENT
       case 6:
       {
-        //FIXME
+        view_event(calendar);
+        break;
+      }
+      
+      //DELETE CLASS
+      //FIXME Not implemented in this sprint
+      case 7:
+      {
+        //FIXME Ask for class name
+        //FIXME Scan through first level of components for class
+        //FIXME Print all matches and get the one to delete
+        //FIXME Warn that all events for that class will be deleted
+        //FIXME Delete class after user okay
+        
+        cout << "This feature is not implemented in this sprint." << endl;
         break;
       }
       
       //EXIT
-      case 7:
+      case 8:
       {
         //Prompt for okay
-        cout << "Your calendar data will not be saved. Continue? (y/n)" << endl;
-        
-        cin >> user_choice;
-        
-        if ((user_choice == "y") || (user_choice == "Y"))
+        if (yes_no_prompt("Your calendar data will not be saved. Continue? (y/n)"))
         {
           return 0;
         }
@@ -239,46 +159,10 @@ int main()
       
       default:
       {
-        cout << "Invalid selection (Not between 1 and 7 inclusive)" << endl;
+        cout << "Invalid selection (Not between 1 and 8 inclusive)" << endl;
         break;
       }
     }
-    
-    //FIXME list of actions
-      //1 Add class
-        //List each property field one at a time
-        //Take user input and validate (null means null)
-        //Follow the really ugly component adding method for each property
-          //Start/end dates rely on default start/end of semester if user okays default
-        //Add component class to calendar
-      //2 Add event
-        //Ask if the event is for a class
-          //If event for class, make sure the semester is not over
-            //If it is, notify the user
-          //If event for class, prompt for class id
-        //List each property field one at a time
-        //Take user input and validate (null means null)
-        //Follow the really ugly component adding method for each property
-        //If event for class, add component event to class
-          //Else, add component event to calendar
-        //FIXME Handle alarm threads
-      //3 Delete event
-        //If event is class, all subentries will be deleted. Prompt for confirmation
-        //Iterate to each event that matches the criteria
-        //Display short view of event, prompt for confirmation before deletion
-      //4 Edit event
-        //Relies on Find Event
-        //Once event found by property, display all fields and prompt for which to edit
-        //Update fied and return to main selector
-      //5 Find event
-        //Display possible fields and prompt for which ones(!) to use
-        //Iterate through class events and non-class events to match properties
-        //Return all matches
-      //6 View event
-        //Ask user if they want null fields in addition to filled ones
-        //Relies on Find Event
-        //Displays short view of all found events
-        //Once user selects desired one, displays all needed fields (needed depends on the first user prompt after View Event selected)
   }
   
   return 0;

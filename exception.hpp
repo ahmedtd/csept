@@ -11,3 +11,13 @@ class log_fail_exception: public exception
       return "Failure writing to the log file";
     }
 } log_fail_ex;
+
+//Thrown when a property cannot be found
+class property_fail_exception: public exception
+{
+  public:
+    virtual const char* what() const throw()
+    {
+      return "Failure writing to the log file";
+    }
+} property_fail_ex;
