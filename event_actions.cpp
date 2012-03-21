@@ -1,6 +1,7 @@
 #include <cstring>
 
 //FIXME CHECK FOR ICAL ERRORS
+//FIXME sizeof(all_props)/sizeof(all_props[0]) is probably bad
 
 void add_class(icalcomponent* calendar, vector<string>& classes)
 {
