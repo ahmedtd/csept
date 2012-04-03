@@ -1,7 +1,6 @@
 #include <cstring>
 
 //FIXME CHECK FOR ICAL ERRORS
-//FIXME sizeof(all_props)/sizeof(all_props[0]) is probably bad
 
 void add_class(icalcomponent* calendar, vector<string>& classes)
 {
@@ -18,7 +17,7 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
   
   vector<string> values;
   
-  for (int i = 0; i < sizeof(all_props) / sizeof(all_props[0]); i++)
+  for (int i = 0; i < 31; i++)
   {
     cout << all_props[i] << ": ";
     std::flush(cout);
@@ -30,6 +29,7 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
     {
       throw cin_fail_ex;
     }
+
     //FIXME Take user input and validate 
     values.push_back(value);
     cout << endl;
@@ -49,7 +49,7 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
       0
       ),
     //FIXME icalproperty_new_duration(values[11].c_str()), //needs right type
-    //FIXME icalproperty_new_exdate(values[13].c_str()),  //needs right type
+    //FIXME icalproperty_new_exdate(values[13].c_str()),  //needs struct icaltimetype v
     //FIXME icalproperty_new_geo(values[14].c_str()), //needs right type
     //FIXME icalproperty_new_lastmodified(values[15].c_str()),
     icalproperty_new_priority(atoi(values[18].c_str())),
@@ -65,24 +65,24 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
       icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
       0
       ),*/
-    /*FIXME icalproperty_vanew_exdate(
-      values[12].c_str(),
+    /*FIXME icalproperty_vanew_exdate(  //FIXME exceptions to recurrences
+      values[12].c_str(), //FIXME struct icaltimetype v
       icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
       0
       ),*/
-    //FIXME icalproperty_new_transp(values[28].c_str()),
+    icalproperty_new_transp(ICAL_TRANSP_NONE), //FIXME values[28]... This is a six-way selector between ICAL_TRANSP_X, ICAL_TRANSP_OPAQUE, ICAL_TRANSP_OPAQUENOCONFLICT, ICAL_TRANSP_TRANSPARENT,  ICAL_TRANSP_TRANSPARENTNOCONFLICT, ICAL_TRANSP_NONE... Relates to free/busy conflicts
 		icalproperty_new_uid(values[29].c_str()),
     icalproperty_new_url(values[30].c_str()),
 		icalproperty_vanew_organizer(
 		    values[17].c_str(),
-		    icalparameter_new_role(ICAL_ROLE_CHAIR),  //FIXME overwrites user settings
+		    icalparameter_new_role(ICAL_ROLE_CHAIR),
 		    0
 		    ),
 		icalproperty_vanew_attendee(
       values[1].c_str(),
-      icalparameter_new_role(ICAL_ROLE_REQPARTICIPANT),  //FIXME overwrites user settings
+      icalparameter_new_role(ICAL_ROLE_REQPARTICIPANT),  //FIXME overwrites user settings. Either ICAL_ROLE_REQPARTICIPANT, ICAL_ROLE_OPTPARTICIPANT, ICAL_ROLE_NONPARTICIPANT
       //FIXME icalparameter_new_rsvp(1),  //FIXME overwrites user settings
-      icalparameter_new_cutype(ICAL_CUTYPE_GROUP),  //FIXME overwrites user settings
+      icalparameter_new_cutype(ICAL_CUTYPE_GROUP),  //FIXME overwrites user settings. Type of calendar user specified by property?
       0
       ),
 		icalproperty_new_description(values[7].c_str()),
@@ -118,7 +118,7 @@ void add_event(icalcomponent* calendar)
   string class_name;
 
   //Ask if the event is for a class
-  bool is_class_event = yes_no_prompt("Is this event for a class?");
+  bool is_class_event = yes_no_prompt("Is this event for a class? (y/n)");
   
   //FIXME Following not implemented in this sprint
   if (is_class_event)
@@ -138,7 +138,7 @@ void add_event(icalcomponent* calendar)
   
   vector<string> values;
   
-  for (int i = 0; i < sizeof(all_props) / sizeof(all_props[0]); i++)
+  for (int i = 0; i < 31; i++)
   {
     cout << all_props[i] << ": ";
     flush(cout);
@@ -277,7 +277,7 @@ icalcomponent* find_event(icalcomponent* calendar)
   
   string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
-  for (int i = 0; i < sel_props.size() && i < sizeof(all_props) / sizeof(all_props[0]); i++)
+  for (int i = 0; i < sel_props.size() && i < 31; i++)
   {
     for (int j = 0; j < 31; j++)
     {
