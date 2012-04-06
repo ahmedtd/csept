@@ -50,13 +50,13 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
       ),
     //FIXME icalproperty_new_duration(values[11].c_str()), //needs right type
     //FIXME icalproperty_new_exdate(values[13].c_str()),  //needs struct icaltimetype v
-    //FIXME icalproperty_new_geo(values[14].c_str()), //needs right type
-    //FIXME icalproperty_new_lastmodified(values[15].c_str()),
+    //FIXME icalproperty_new_geo(values[14].c_str()), //needs right type- two floats with 6 decimal places (-90 to 90; -180 to 180)
+    //FIXME icalproperty_new_lastmodified(values[15].c_str()),  //FIXME auto-make with timestamp
     icalproperty_new_priority(atoi(values[18].c_str())),
     //FIXME icalproperty_vanew_recurid(),
-    //FIXME icalproperty_vanew_related(),
+    //FIXME icalproperty_vanew_related(), //FIXME used to associate events with to-dos
     //FIXME icalproperty_vanew_resources(),
-    //FIXME icalproperty_vanew_sequence(),
+    //FIXME icalproperty_vanew_sequence(),  //FIXME starts at 0; increments with each edit
     //FIXME icalproperty_new_rrule(values[23].c_str()),
     //FIXME icalproperty_new_status(values[26].c_str()),
     //FIXME icalproperty_new_rstatus()  may not exist...
@@ -71,7 +71,7 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
       0
       ),*/
     icalproperty_new_transp(ICAL_TRANSP_NONE), //FIXME values[28]... This is a six-way selector between ICAL_TRANSP_X, ICAL_TRANSP_OPAQUE, ICAL_TRANSP_OPAQUENOCONFLICT, ICAL_TRANSP_TRANSPARENT,  ICAL_TRANSP_TRANSPARENTNOCONFLICT, ICAL_TRANSP_NONE... Relates to free/busy conflicts
-		icalproperty_new_uid(values[29].c_str()),
+		icalproperty_new_uid(values[29].c_str()), //FIXME UNIQUE! used as part of the related-to field
     icalproperty_new_url(values[30].c_str()),
 		icalproperty_vanew_organizer(
 		    values[17].c_str(),
@@ -81,14 +81,13 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
 		icalproperty_vanew_attendee(
       values[1].c_str(),
       icalparameter_new_role(ICAL_ROLE_REQPARTICIPANT),  //FIXME overwrites user settings. Either ICAL_ROLE_REQPARTICIPANT, ICAL_ROLE_OPTPARTICIPANT, ICAL_ROLE_NONPARTICIPANT
-      //FIXME icalparameter_new_rsvp(1),  //FIXME overwrites user settings
       icalparameter_new_cutype(ICAL_CUTYPE_GROUP),  //FIXME overwrites user settings. Type of calendar user specified by property?
       0
       ),
 		icalproperty_new_description(values[7].c_str()),
 
-		icalproperty_new_categories(values[2].c_str()),
-		icalproperty_new_class(ICAL_CLASS_PUBLIC),  //FIXME overwrites user settings
+		icalproperty_new_categories(values[2].c_str()), //FIXME selects from list of categoires, with option to add new one
+		icalproperty_new_class(ICAL_CLASS_PUBLIC),  //FIXME either "PUBLIC" / "PRIVATE" / "CONFIDENTIAL" available. anything else when read is viewed as private
 		icalproperty_new_created(atime),  //FIXME overwrites user settings
 		icalproperty_new_summary(values[27].c_str()),
 		icalproperty_vanew_dtstart(

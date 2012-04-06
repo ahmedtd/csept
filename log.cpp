@@ -73,7 +73,7 @@ void append_raw_to_log(fstream& log, string s)
   
   log << ctime(&current_time) << s;
   
-  if (s[s.size() - 1] != '\n')
+  if ((s.size() > 0) && (s[s.size() - 1] != '\n'))
   {
     log << endl;
   }else
@@ -104,8 +104,9 @@ void append_action_to_log(fstream& log, string s, bool result)
   time_t current_time;
   time(&current_time);
   
-  //FIXME remove newline char at the end of ctime
-  log << ctime(&current_time) << ": " << s;
+  string the_time = ctime(&current_time);
+  
+  log << the_time.substr(0, the_time.size()-1) << ": " << s;
   if (result)
   {
     log << " (SUCCESS)";
