@@ -9,7 +9,7 @@
 
 using namespace std;
 
-
+// is used in makeNewAssigment
 vector <icalcomponent*> assignmentList;
 
 //creates new assignment, which is a VTODO, then adds it to a calendar
