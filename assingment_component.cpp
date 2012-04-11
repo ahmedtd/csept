@@ -9,12 +9,12 @@
 
 using namespace std;
 
-// is used in makeNewAssigment
+
 vector <icalcomponent*> assignmentList;
 
 //creates new assignment, which is a VTODO, then adds it to a calendar
 // must have a title
-//Still need to: make uid unique, add the seq property
+//Still need to: make uid unique
 void makeNewAssignment( icalcomponent* calendar, string title){
 	icalcomponent* event;				
 	icaltimetype currentTime = icaltime_from_timet( time(0), 0);
@@ -53,7 +53,9 @@ void makeNewAssignment( icalcomponent* calendar, string title){
 	icalcomponent_add_property(event, icalproperty_new_priority(0));
 
 	//recurid, do not need for todo
-	//seq, no not need for todo           
+
+	//seq, no not need for todo 
+	icalcomponent_add_property(event, icalproperty_new_sequence(0));
 
 	//status of assignment, set to incomplete
 	icalcomponent_add_property(event,icalproperty_new_status(ICAL_STATUS_NEEDSACTION));
@@ -138,7 +140,7 @@ void updateAssignment(icalcomponent* eventUpdating){
 		case 3: // percent completed 
 			{
 					int completed;
-					cout<<"Enter new description: "<<endl;
+					cout<<"Enter percent completed: "<<endl;
 					cin>> completed;
 					p= icalcomponent_get_first_property(eventUpdating,ICAL_PERCENTCOMPLETE_PROPERTY);
 					icalproperty_set_percentcomplete(p,completed);
@@ -147,20 +149,50 @@ void updateAssignment(icalcomponent* eventUpdating){
 		case 4: // priority
 			{
 					int priority;
-					cout<<"Enter new description: "<<endl;
+					cout<<"Enter priority (int 1 - 9): "<<endl;
 					cin>> priority;
 					p= icalcomponent_get_first_property(eventUpdating,ICAL_PRIORITY_PROPERTY);
 					icalproperty_set_priority(p, priority);
 					break;
 				}
 
-		case 5: //status, not working ///////////////////////////////////////////////////
+		case 5: //status
 				{
-					string status;
-					cout<<"Enter new status"<<endl;
+					// four status for todo are: needs-action, completed, in-process, and cancelled
+
+					int status;
+					cout<< "1. Needs-Action"<<endl;
+					cout<< "2. Completed"<<endl;
+					cout<< "3. In-Process"<<endl;
+					cout<< "4. Cancelled"<<endl;
+
+					cout<<"Enter status number (1-4)"<<endl;
 					cin>> status;
-					//p= icalcomponent_get_first_property(eventUpdating,ICAL_STATUS_PROPERTY);
-					//icalproperty_set_status(p,
+
+					p= icalcomponent_get_first_property(eventUpdating,ICAL_STATUS_PROPERTY);
+					switch (status){
+					case 1: 
+						{
+							icalproperty_set_status(p,ICAL_STATUS_NEEDSACTION);
+							break;
+						}
+					case 2:
+						{
+							icalproperty_set_status(p,ICAL_STATUS_COMPLETED);
+							break;
+						}
+					case 3:
+						{
+							icalproperty_set_status(p,ICAL_STATUS_INPROCESS);
+							break;
+						}
+					case 4:
+						{
+							icalproperty_set_status(p,ICAL_STATUS_CANCELLED);
+							break;
+						}
+
+					}
 					break;
 				}
 		case 6: // title (summary)
@@ -176,7 +208,7 @@ void updateAssignment(icalcomponent* eventUpdating){
 
 		case 7: // due-date, not working /////////////////////////////////////
 		{
-				icaltimetype duedateTime=;
+				//icaltimetype duedateTime=;
 				//cout<<"Enter due-date: "<<endl;
 				//cin>> duedateTime;
 
@@ -184,7 +216,7 @@ void updateAssignment(icalcomponent* eventUpdating){
 				//icaltimetype currentTime = icaltime_from_timet( time(0), 0);
 				//char *chartitle = (char*)title.c_str();
 				p= icalcomponent_get_first_property(eventUpdating,ICAL_DUE_PROPERTY);
-				icalproperty_set_due(p,duedateTime);
+				//icalproperty_set_due(p,duedateTime);
 				break;
 			}
 		case 8: //category
@@ -209,10 +241,15 @@ void updateAssignment(icalcomponent* eventUpdating){
 
 	}
 	
-	// adding last-mod
+	// updating last-mod
 	p= icalcomponent_get_first_property(eventUpdating,ICAL_LASTMODIFIED_PROPERTY);
-	icalcomponent_add_property(eventUpdating, icalproperty_new_lastmodified(icaltime_from_timet( time(0), 0)));
+	icalproperty_set_lastmodified(p, icaltime_from_timet( time(0), 0));
 
+	// updating sequence
+	p=icalcomponent_get_first_property(eventUpdating, ICAL_SEQUENCE_PROPERTY);
+	int currentSeq =icalproperty_get_sequence(p);
+	int updatedSeq = currentSeq+1;
+	icalproperty_set_sequence(p, updatedSeq);
 }
 
 int main ()
