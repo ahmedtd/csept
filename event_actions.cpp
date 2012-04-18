@@ -11,13 +11,11 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
   
   
   //List each property field one at a time
-  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
-  
-  //FIXME Start/end dates rely on default start/end of semester if user okays default
+  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
   vector<string> values;
   
-  for (int i = 0; i < 31; i++)
+  for (int i = 0; i < 30; i++)
   {
     cout << all_props[i] << ": ";
     std::flush(cout);
@@ -40,31 +38,20 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
   //Add the values to the event
   icalcomponent* class_event = icalcomponent_vanew(
 		ICAL_VEVENT_COMPONENT,
-		icalproperty_new_dtstamp(atime),
-    icalproperty_new_contact(values[5].c_str()),
-    icalproperty_new_comment(values[4].c_str()),
+		icalproperty_new_dtstamp(atime), //FIXME current time
     icalproperty_vanew_attach(
       NULL, //FIXME icalattach *icalattach_new_from_url (const char *url);
       values[0].c_str(),  //FIXME?
       0
       ),
-    //FIXME icalproperty_new_duration(values[11].c_str()), //needs right type
     //FIXME icalproperty_new_exdate(values[13].c_str()),  //needs struct icaltimetype v
-    //FIXME icalproperty_new_geo(values[14].c_str()), //needs right type- two floats with 6 decimal places (-90 to 90; -180 to 180)
     //FIXME icalproperty_new_lastmodified(values[15].c_str()),  //FIXME auto-make with timestamp
-    icalproperty_new_priority(atoi(values[18].c_str())),
     //FIXME icalproperty_vanew_recurid(),
     //FIXME icalproperty_vanew_related(), //FIXME used to associate events with to-dos
     //FIXME icalproperty_vanew_resources(),
     //FIXME icalproperty_vanew_sequence(),  //FIXME starts at 0; increments with each edit
     //FIXME icalproperty_new_rrule(values[23].c_str()),
     //FIXME icalproperty_new_status(values[26].c_str()),
-    //FIXME icalproperty_new_rstatus()  may not exist...
-    /*FIXME icalproperty_vanew_rdate(
-      values[15].c_str(),
-      icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-      0
-      ),*/
     /*FIXME icalproperty_vanew_exdate(  //FIXME exceptions to recurrences
       values[12].c_str(), //FIXME struct icaltimetype v
       icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
@@ -88,7 +75,7 @@ void add_class(icalcomponent* calendar, vector<string>& classes)
 
 		icalproperty_new_categories(values[2].c_str()), //FIXME selects from list of categoires, with option to add new one
 		icalproperty_new_class(ICAL_CLASS_PUBLIC),  //FIXME either "PUBLIC" / "PRIVATE" / "CONFIDENTIAL" available. anything else when read is viewed as private
-		icalproperty_new_created(atime),  //FIXME overwrites user settings
+		icalproperty_new_created(atime),  //FIXME current time
 		icalproperty_new_summary(values[27].c_str()),
 		icalproperty_vanew_dtstart(
       atime,                  //FIXME overwrites user settings
@@ -119,12 +106,8 @@ void add_event(icalcomponent* calendar)
   //Ask if the event is for a class
   bool is_class_event = yes_no_prompt("Is this event for a class? (y/n)");
   
-  //FIXME Following not implemented in this sprint
   if (is_class_event)
   {
-    //FIXME If event for class, make sure the semester is not over
-    //FIXME If the semester is over, notify the user
-    
     //If event for class, prompt for class id
     cout << "What is the name of this class?" << endl;
     cin >> class_name;
@@ -133,11 +116,11 @@ void add_event(icalcomponent* calendar)
     
   //List each property field one at a time
   cout << "Enter information for each of the following properties." << endl;
-  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
+  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
   vector<string> values;
   
-  for (int i = 0; i < 31; i++)
+  for (int i = 0; i < 30; i++)
   {
     cout << all_props[i] << ": ";
     flush(cout);
@@ -166,73 +149,7 @@ void add_event(icalcomponent* calendar)
   
   struct icaltimetype atime = icaltime_from_timet(time(0), 0);
   
-  //Add the values to the event
-  icalcomponent* event = icalcomponent_vanew(
-		ICAL_VEVENT_COMPONENT,
-		icalproperty_new_dtstamp(atime),
-    icalproperty_new_contact(values[5].c_str()),
-    icalproperty_new_comment(values[4].c_str()),
-    icalproperty_vanew_attach(
-      NULL, //FIXME is this the file encoding?
-      values[0].c_str(),
-      0
-      ),
-    //FIXME icalproperty_new_duration(values[11].c_str()),
-    //FIXME icalproperty_new_exdate(values[13].c_str()),
-    //FIXME icalproperty_new_geo(values[14].c_str()),
-    //FIXME icalproperty_new_lastmod(values[15].c_str()),
-    icalproperty_new_priority(atoi(values[18].c_str())),
-    //FIXME icalproperty_vanew_recurid(),
-    //FIXME icalproperty_vanew_related(),
-    //FIXME icalproperty_vanew_resources(),
-    //FIXME icalproperty_vanew_sequence(),
-    //FIXME icalproperty_new_rrule(values[23].c_str()),
-    //FIXME icalproperty_new_status(values[26].c_str()),
-    //FIXME icalproperty_new_rstatus()  may not exist...
-    /*FIXME icalproperty_vanew_rdate(
-      values[15].c_str(),
-      icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-      0
-      ),*/
-    /*FIXME icalproperty_vanew_exdate(
-      values[12].c_str(),
-      icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-      0
-      ),*/
-    //FIXME icalproperty_new_transp(values[28].c_str()),
-		icalproperty_new_uid(values[29].c_str()),
-    icalproperty_new_url(values[30].c_str()),
-		icalproperty_vanew_organizer(
-		    values[17].c_str(),
-		    icalparameter_new_role(ICAL_ROLE_CHAIR),  //FIXME overwrites user settings
-		    0
-		    ),
-		icalproperty_vanew_attendee(
-      values[1].c_str(),
-      icalparameter_new_role(ICAL_ROLE_REQPARTICIPANT),  //FIXME overwrites user settings
-      //FIXME icalparameter_new_rsvp(1),  //FIXME overwrites user settings
-      icalparameter_new_cutype(ICAL_CUTYPE_GROUP),  //FIXME overwrites user settings
-      0
-      ),
-		icalproperty_new_description(values[7].c_str()),
-
-		icalproperty_new_categories(values[2].c_str()),
-		icalproperty_new_class(ICAL_CLASS_PUBLIC),  //FIXME overwrites user settings
-		icalproperty_new_created(atime),  //FIXME overwrites user settings
-		icalproperty_new_summary(values[27].c_str()),
-		icalproperty_vanew_dtstart(
-      atime,                  //FIXME overwrites user settings
-      icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-      0
-      ),
-		icalproperty_vanew_dtend(
-      atime,                //FIXME overwrites user settings
-      icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-      0
-      ),
-		icalproperty_new_location(values[16].c_str()),
-		0
-		);  
+  //FIXME Add the values to the event
   
   if (is_class_event)
   {
@@ -274,11 +191,11 @@ icalcomponent* find_event(icalcomponent* calendar)
     sel_props_c = strtok(c_properties, ";");
   }
   
-  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
+  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
-  for (int i = 0; i < sel_props.size() && i < 31; i++)
+  for (int i = 0; i < sel_props.size() && i < 30; i++)
   {
-    for (int j = 0; j < 31; j++)
+    for (int j = 0; j < 30; j++)
     {
       if (sel_props[i] == all_props[j])
       {
@@ -444,11 +361,11 @@ void edit_event(icalcomponent* calendar)
     sel_props_c = strtok(c_properties, ";");
   }
   
-  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "EXRULE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
+  string all_props[] = {"ATTACH", "ATTENDEE", "CATEGORIES", "CLASS", "COMMENT", "CONTACT", "CREATED", "DESCRIPTION", "DTEND", "DTSTAMP", "DTSTART", "DURATION", "EXDATE", "GEO", "LAST-MOD", "LOCATION", "ORGANIZER", "PRIORITY", "RDATE", "RECURID", "RELATED", "RESOURCES", "RRULE", "RSTATUS", "SEQ", "STATUS", "SUMMARY", "TRANSP", "UID", "URL"};
   
   for (int i = 0; i < sel_props.size(); i++)
   {
-    for (int j = 0; j < 31; j++)
+    for (int j = 0; j < 30; j++)
     {
       if (sel_props[i] == all_props[j])
       {
