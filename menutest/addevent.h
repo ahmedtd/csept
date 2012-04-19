@@ -2,6 +2,8 @@
 #define ADDEVENT_H
 
 #include <QDialog>
+#include "addalarm.h"
+#include "addcategory.h"
 #include <QComboBox>
 
 namespace Ui {
@@ -28,7 +30,10 @@ private slots:
 
 private:
     Ui::AddEvent *ui;
-    AddEvent     *winEvent;
+    AddCategory *winCategory;
+    AddAlarm *winAlarm;
+    int num_cats;
+    bool has_alarm;
 };
 
 #endif // ADDEVENT_H

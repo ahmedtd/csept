@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
     //QFileInfo fileInfo(strFileName); // strFileName is a QString conaining the path/name of the file
     //QString str = fileInfo.lastModified().toString();
 
-    //FIXME load categories.txt into all_categories
     //FIXME import default ics file
     //FIXME create if they don't exist
 

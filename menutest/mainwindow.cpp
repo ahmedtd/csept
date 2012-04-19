@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    winEvent= new AddEvent(this);
+    winEvent = new AddEvent(this);
     ui->setupUi(this);
 }
 
@@ -91,5 +91,5 @@ void MainWindow::on_actionCategories_triggered()
         //FIXME if deleting, check if any components belong to it
             //FIXME if so, prompt for okay
             //FIXME then delete the corresponding components, stop alarms associated with those, and delete category from the file
-        //FIXME if adding, update all category boxes, the current list, and the file
+        //FIXME if adding, update the file
 }

@@ -16,15 +16,18 @@ SOURCES += main.cpp\
     addevent.cpp \
     log.cpp \
     globals.cpp \
-    addcategory.cpp
+    addcategory.cpp \
+    addalarm.cpp
 
 HEADERS  += mainwindow.h \
     addevent.h \
     globals.h \
     log.h \
     exception.h \
-    addcategory.h
+    addcategory.h \
+    addalarm.h
 
 FORMS    += mainwindow.ui \
     addevent.ui \
-    addcategory.ui
+    addcategory.ui \
+    addalarm.ui

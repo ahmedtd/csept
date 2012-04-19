@@ -1,5 +1,7 @@
 #include "globals.h"
+#include "addcategory.h"
 #include "addevent.h"
+#include "addalarm.h"
 #include <string>
 #include "ui_addevent.h"
 
@@ -7,13 +9,39 @@ AddEvent::AddEvent(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddEvent)
 {
+    winCategory = new AddCategory(this);
+    winAlarm = new AddAlarm(this);
+
+    ui->setupUi(this);
+
     //Update the category combo box to be current
+    ui->CategoryBox->addItem("");
+
+    //Read from categories.txt line by line
+    std::vector<std::string> all_categories;
+
+    std::ifstream cats;
+    cats.open("categories.txt");
+    std::string temp;
+
+    while(getline(cats, temp))
+    {
+        all_categories.push_back(temp);
+    }
+
+    cats.close();
+
     for (unsigned int i = 0; i < all_categories.size(); i++)
     {
         ui->CategoryBox->addItem(QString::fromStdString(all_categories[i]));
     }
 
-    ui->setupUi(this);
+    num_cats = all_categories.size();
+
+    ui->CategoryBox->addItem("Add New Category...");
+
+    this->update();
+    this->repaint();
 }
 
 AddEvent::~AddEvent()
@@ -26,18 +54,39 @@ void AddEvent::on_CategoryBox_activated(int index)
     //When Add Category is selected, update the current box and the file
     if (index == (ui->CategoryBox->count() - 1) )
     {
-        ui->CategoryBox->addItem(QString::fromStdString(all_categories[all_categories.size() - 1]));
+        winCategory->show();
+
+        //Read from categories.txt line by line
+        std::ifstream cats2;
+        std::string temp;
+        cats2.open("categories.txt");
+        std::vector<std::string> all_categories;
+
+        while(getline(cats2, temp))
+        {
+            all_categories.push_back( temp );
+        }
+
+        cats2.close();
+
+        if ((unsigned)num_cats < all_categories.size())
+        {
+            //FIXME item is added to cats.txt, but the list doesn't update until the new cat dialog reappears
+            ui->CategoryBox->insertItem(ui->CategoryBox->count() - 1, QString::fromStdString(all_categories[all_categories.size() - 1]));
+            ui->CategoryBox->setCurrentIndex(ui->CategoryBox->count() - 2);
+            this->update();
+            this->repaint();
+        }
+
+        this->update();
+        this->repaint();
     }
 }
 
 void AddEvent::on_addAlarmButton_clicked()
 {
-    //FIXME open dialog with label "when will the alarm trigger" and time/date edit and url path to audio file
-    //FIXME on ok clicked:
-    //FIXME     prepare alarm for component
-    //FIXME     set alarm_here = true
-    //FIXME on cancel clicked:
-    //FIXME     close dialog
+    winAlarm->show();
+    has_alarm = true;
 }
 
 void AddEvent::on_buttonBox_accepted()
@@ -51,51 +100,89 @@ void AddEvent::on_buttonBox_accepted()
     std::string category;
     if (ui->CategoryBox->currentIndex() == (ui->CategoryBox->count() - 1) )
     {
-        //FIXME error message "Bad Category"
+        //Error, so don't add event
+        QMessageBox errorMessBox;
+        errorMessBox.setText("Bad Category");
+        errorMessBox.exec();
         return;
     }else
     {
-        category = all_categories[ui->CategoryBox->currentIndex()];
+        category = ui->CategoryBox->currentText().toStdString();
     }
-
 
     struct icaltimetype dtstart = icaltime_from_timet(ui->StartTimeEdit->dateTime().toTime_t(), 0);
     struct icaltimetype dtend = icaltime_from_timet(ui->EndTimeEdit->dateTime().toTime_t(), 0);
 
     if (!(ui->StartTimeEdit->dateTime().toTime_t() >= ui->EndTimeEdit->dateTime().toTime_t()))
     {
-        //FIXME display error message "Invalid date range"
-        return;
+        //Error, so don't add event
+        QMessageBox errorMessBox;
+        errorMessBox.setText("Invalid date range");
+        errorMessBox.exec();
+        return; //FIXME this closes the window too. bools still close it
     }
 
     //FIXME pull rrule
 
     //FIXME pull exdates
 
-    //FIXME pull alarm
+    //Alarm pulled later
+
 
     std::string location = ui->LocationEdit->text().toStdString();
 
     std::string organizer = ui->OrganizerEdit->text().toStdString();
 
-    //FIXME pull attendees
-    //FIXME split on ';' into std::vector<string> attendees
-    //FIXME will have to add extra attendees after the fact to the event
+    //Pull all attendees to be dealt with later
+    char all_attendees[] = "";
+    std::string check = ui->AttendEdit->text().toStdString();
+    if (check.size() > 0)
+    {
+        strcpy(all_attendees, check.c_str());
+    }
 
-    //FIXME pull status
+    vector<string> attendees;
+    const char* p;
+    for (p = strtok(all_attendees, ";"); p; p = strtok(NULL, ";"))
+    {
+        attendees.push_back(p);
+    }
+
+    if (attendees.size() == 0)
+    {
+        attendees.push_back("");
+    }
 
     std::string url = ui->UrlEdit->text().toStdString();
 
     std::string attach = ui->AttachEdit->text().toStdString();
 
-    //FIXME pull class
+    //Pull class
+    icalproperty_class class_type;
+    if (ui->PublicBox->isChecked())
+    {
+        //This is a public event
+        class_type = ICAL_CLASS_PUBLIC;
+    }else
+    {
+        class_type = ICAL_CLASS_PRIVATE;
+    }
 
-    //FIXME pull freebusy
+    //Pull freebusy
+    icalproperty_transp freebusy;
+    if (ui->BusyTimeBox->isChecked())
+    {
+        //This is busy time
+        freebusy = ICAL_TRANSP_OPAQUE;
+    }else
+    {
+        freebusy = ICAL_TRANSP_TRANSPARENT;
+    }
 
     //Set uid
-    stringstream ss;
+    std::stringstream ss;
     std::string uid;
-    ss << time(0) << " " << summary;
+    ss << time(0) << "." << summary;
     ss >> uid;
 
     //Add the values to the event
@@ -125,42 +212,45 @@ void AddEvent::on_buttonBox_accepted()
             0
             ),
 
-         //FIXME attendee
-
+        //The first attendee
+        icalproperty_vanew_attendee(
+            attendees[0].c_str(),
+            icalparameter_new_role(ICAL_ROLE_OPTPARTICIPANT),
+            icalparameter_new_cutype(ICAL_CUTYPE_GROUP),
+            0
+            ),
         icalproperty_new_url(url.c_str()),
         icalproperty_vanew_attach(
             icalattach_new_from_url (attach.c_str()),
             0
             ),
-
-        //FIXME status, freebusy
+        icalproperty_new_class(class_type),
+        icalproperty_new_transp(freebusy),
 
         //"Hidden" properties
         icalproperty_new_dtstamp(atime),    //Current time
         icalproperty_new_created(atime),    //Current time
         icalproperty_new_lastmodified(atime), //Auto-updates
-        icalproperty_vanew_sequence(0),  //Increments with each edit
+        icalproperty_new_sequence(0),  //Increments with each edit
         icalproperty_new_status(ICAL_STATUS_CONFIRMED),
         icalproperty_new_uid(uid.c_str()), //Used as part of the related-to field
+        icalproperty_new_recurrenceid(dtstart), //matches original value of dtstart
 
-        //FIXME icalproperty_vanew_recurid(),
-        //FIXME icalproperty_vanew_related(), //FIXME used to associate events with to-dos
         //FIXME icalproperty_new_rrule(values[23].c_str()),
-        /*FIXME icalproperty_vanew_exdate(  //FIXME exceptions to recurrences
-          values[12].c_str(), //FIXME struct icaltimetype v
-          icalparameter_new_tzid("US-Central"), //FIXME should get timezone from user
-          0
-          ),*/
-        //icalproperty_new_transp(ICAL_TRANSP_NONE), //FIXME values[28]... This is a six-way selector between ICAL_TRANSP_X, ICAL_TRANSP_OPAQUE, ICAL_TRANSP_OPAQUENOCONFLICT, ICAL_TRANSP_TRANSPARENT,  ICAL_TRANSP_TRANSPARENTNOCONFLICT, ICAL_TRANSP_NONE... Relates to free/busy conflicts
-          /*icalproperty_vanew_attendee(
-            values[1].c_str(),
-            icalparameter_new_role(ICAL_ROLE_OPTPARTICIPANT),
-            icalparameter_new_cutype(ICAL_CUTYPE_GROUP),
-          0
-          ),*/
-                    //icalproperty_new_class(ICAL_CLASS_PUBLIC),  //FIXME either "PUBLIC" / "PRIVATE" / "CONFIDENTIAL" available. anything else when read is viewed as private
-                    0
-                    );
+        //FIXME icalproperty_vanew_exdate(  struct icaltimetype v, icalparameter_new_tzid("US-Central"),           0),
+         0
+         );
+
+    //FIXME Add extra attendees after the fact to the event
+
+    //Pull alarm to be added now
+    if (has_alarm)
+    {
+        struct icaltimetype alarmTime = icaltime_from_timet(winAlarm->getDateTime().toTime_t(), 0);
+        std::string fileName = winAlarm->getFileName();
+//FIXME add alarm to new_event
+        //FIXME start alarm thread
+    }
 
     //Add the event to the calendar
     icalcomponent_add_component(calendar, new_event);

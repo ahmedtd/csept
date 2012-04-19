@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <globals.h>
 #include "exception.h"
 
 using namespace std;
@@ -32,14 +33,22 @@ void open_log_file(fstream &log)
 {
   if (log.is_open())
   {
-    throw log_fail_ex;
+    //Error, so don't open
+    QMessageBox errorMessBox;
+    errorMessBox.setText("Log file is already in use");
+    errorMessBox.exec();
+    return;
   }
 
   log.open("log.txt", ios::out | ios::app);
   
   if (!log.is_open())
   {
-    throw log_fail_ex;
+    //Error, so don't open
+    QMessageBox errorMessBox;
+    errorMessBox.setText("Log file cannot be opened");
+    errorMessBox.exec();
+    return;
   }
 }
 
@@ -66,7 +75,11 @@ void append_raw_to_log(fstream& log, string s)
 {
   if (!log.is_open())
   {
-    throw log_fail_ex;
+      //Error, so don't write
+      QMessageBox errorMessBox;
+      errorMessBox.setText("Log file cannot be opened");
+      errorMessBox.exec();
+      return;
   }
   
   time_t current_time;
@@ -84,7 +97,11 @@ void append_raw_to_log(fstream& log, string s)
   
   if (log.fail())
   {
-    throw log_fail_ex;
+      //Error, so don't write
+      QMessageBox errorMessBox;
+      errorMessBox.setText("Log file cannot be written to");
+      errorMessBox.exec();
+      return;
   }
 }
 
@@ -99,7 +116,11 @@ void append_action_to_log(fstream& log, string s, bool result)
 {
   if (!log.is_open())
   {
-    throw log_fail_ex;
+      //Error, so don't write
+      QMessageBox errorMessBox;
+      errorMessBox.setText("Log file cannot be written to");
+      errorMessBox.exec();
+      return;
   }
   
   time_t current_time;
@@ -120,7 +141,11 @@ void append_action_to_log(fstream& log, string s, bool result)
   
   if (log.fail())
   {
-    throw log_fail_ex;
+      //Error, so don't write
+      QMessageBox errorMessBox;
+      errorMessBox.setText("Log file cannot be written to");
+      errorMessBox.exec();
+      return;
   }
 }
 
@@ -148,6 +173,10 @@ void append_action_to_closed_log(string s, bool result)
   }catch(log_fail_exception e)
   {
     //Not necessary, but could be useful for later modifications
-    throw log_fail_ex;
+    //Error, so don't use
+    QMessageBox errorMessBox;
+    errorMessBox.setText("Error using log file");
+    errorMessBox.exec();
+    return;
   }
 }

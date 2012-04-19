@@ -2,6 +2,7 @@
 #define ADDCATEGORY_H
 
 #include <QDialog>
+#include "globals.h"
 
 namespace Ui {
     class AddCategory;
@@ -16,9 +17,10 @@ public:
     ~AddCategory();
 
 private slots:
-    void on_buttonBox_accepted();
+    void on_catButtonBox_accepted();
 
-    void on_buttonBox_rejected();
+    void on_catButtonBox_rejected();
+
 
 private:
     Ui::AddCategory *ui;

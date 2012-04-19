@@ -73,18 +73,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QComboBox" name="CategoryBox">
-      <item>
-       <property name="text">
-        <string/>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Add New Category...</string>
-       </property>
-      </item>
-     </widget>
+     <widget class="QComboBox" name="CategoryBox"/>
     </item>
     <item row="3" column="0">
      <widget class="QLabel" name="StartLabel">
