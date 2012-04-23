@@ -1,0 +1,64 @@
+\documentclass[titlepage]{article}
+
+\usepackage[paper=letterpaper, margin=2.5cm]{geometry}
+\usepackage{parskip}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage[htt]{hyphenat}
+\usepackage{xspace}
+
+\newcommand{\csept}{\texttt{csept}\space}
+\newcommand{\gcov}{\texttt{gcov}\space}
+\newcommand{\cmake}{\texttt{CMake}\space}
+\newcommand{\ctest}{\texttt{CTest}\xspace}
+
+\title{%
+CSCE 431: Assignment 6 \\
+\csept Calendaring System \\
+Build System Overview
+}
+
+\author{%
+Taahir Ahmed \\
+Rachel Flores-Meath \\
+Andrew Funderburgh \\
+Maggie O'Brien \\
+Patrick Smith
+}
+
+\date{%
+19 April 2012
+}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Test System Overview}
+
+The goal of the \csept calendaring system is to provide a completely
+cross-platform calendar solution for professionals and students, promoting
+interoperability by supporting many input and output methods and formats for
+calendaring data.  This ambitious goal necessitates a flexible build and testing
+system, as well as widespread use of cross-platform solutions in order to
+minimize code duplication.  To this end, the \csept project has adopted a build
+and testing system using \cmake and \ctest, integrated with the Boost unit
+testing framework.
+
+\subsection{CMake}
+
+\subsection{CTest}
+
+\subsection{Boost Unit Test Framework}
+
+\subsection{Code Coverage Testing (\gcov)}
+
+\section{Test Registration}
+
+\subsection{Unit Tests}
+
+\subsection{Pre-, Post-, and Invariant-Tests}
+
+\section{Test Execution}
+
+\end{document}
