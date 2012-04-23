@@ -123,10 +123,23 @@ void AddEvent::on_buttonBox_accepted()
     }
 
     //FIXME pull rrule
+    //FIXME FREQ = ??? = DAILY, WEEKLY, HOURLY, YEARLY, MINUTELY
+    //FIXME BYDAY = ??? = SU, MO, TU, WE, TH, FR, SA
+    //FIXME BYMONTH = ??? = ints???
+    //FIXME BYHOUR = ints???
+    //FIXME BYMINUTE = ints???
+    //FIXME COUNT = int???
+    //FIXME INTERVAL = int???
+    //FIXME UNTIL = ???
+    //FIXME WKST = one of SU, MO, TU, WE, TH, FR, SA
+    //FIXME BYMONTHDAY = ints???
+    //FIXME BYSETPOS  = int???
+    //FIXME icalrecurrencetype
 
     //FIXME pull exdates
 
     //Alarm pulled later
+    //FIXME alarm has a param actionvalue = "AUDIO"?
 
 
     std::string location = ui->LocationEdit->text().toStdString();

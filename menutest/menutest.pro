@@ -9,7 +9,15 @@ QT       += core gui
 TARGET = menutest
 TEMPLATE = app
 
-LIBS +=  -lical
+unix
+{
+    LIBS +=  -lical
+}
+
+win32
+{
+    LIBS += -L/PATH/TO/LIB -lical
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp \

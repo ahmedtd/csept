@@ -6,10 +6,19 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    //FIXME check for backup.ics and 7c.ics being the same size with this
-    //FIXME also use .exists() and size().toString()
-    //QFileInfo fileInfo(strFileName); // strFileName is a QString conaining the path/name of the file
-    //QString str = fileInfo.lastModified().toString();
+    //FIXME existence of backup.ics means there was an error or that two sessions are running
+    QFileInfo backupInfo("/backup.ics");
+    bool backupExists = file7cInfo.exists();
+
+    if (backupExists)
+    {
+        QMessageBox errorMessBox;
+        errorMessBox.setText("");
+        errorMessBox.exec();
+    }
+
+    QFileInfo file7cInfo("/7c.ics");
+    bool file7cExists = file7cInfo.exists();
 
     //FIXME import default ics file
     //FIXME create if they don't exist
