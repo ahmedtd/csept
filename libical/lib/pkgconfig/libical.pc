@@ -1,0 +1,11 @@
+prefix=C:/Program Files/libical
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+threadslib=
+          
+Name: libical
+Description: An implementation of basic iCAL protocols
+Version: 0.48
+Libs: -L${libdir} -lical -licalss -licalvcal ${threadslib}
+Cflags: -I${includedir}
