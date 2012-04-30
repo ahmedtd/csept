@@ -22,12 +22,12 @@
 *  Opens and returns a file stream to log.txt
 *  Throws log_fail_ex on failure
 */
-void open_log_file(fstream& log);
+bool open_log_file(fstream& log);
 
 /*
 *  Given a file stream, cleanly closes the file
 */
-void close_log_file(fstream& log);
+bool close_log_file(fstream& log);
 
 /*
 *  Given a (pre-formatted) string and file stream, appends the string to the log file
@@ -35,7 +35,7 @@ void close_log_file(fstream& log);
 *  Places a newline at the end of the string if one is not at the end of the string
 *  Throws log_fail_ex if the log is not open
 */
-void append_raw_to_log(fstream& log, string s);
+bool append_raw_to_log(fstream& log, string s);
 
 /*
 *  Given a string containing an action that occurred and the result of that action, appends the string and the result to the log file
@@ -43,7 +43,7 @@ void append_raw_to_log(fstream& log, string s);
 *  Places a newline at the end of the string
 *  Throws log_fail_ex if the log is not open
 */
-void append_action_to_log(fstream& log, string s, bool result);
+bool append_action_to_log(fstream& log, string s, bool result);
 
 /*
 *  Given a string containing an action that occurred and the result of that action, appends the string and the result to the log file
@@ -56,4 +56,4 @@ void append_action_to_log(fstream& log, string s, bool result);
 *  This will be hugely inefficient if multiple writes to the log file
 *  are needed in succession
 */
-void append_action_to_closed_log(string s, bool result);
+bool append_action_to_closed_log(string s, bool result);
